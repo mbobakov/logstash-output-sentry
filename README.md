@@ -18,7 +18,7 @@ You must have [Logstash](https://github.com/elasticsearch/logstash) installed fo
 As this plugin has been shared on [RubyGems](https://rubygems.org) with the name [logstash-output-sentry](https://rubygems.org/gems/logstash-output-sentry) you can install it using the following command from your Logstash installation path:
 
 ```sh
-bin/plugin install logstash-output-sentry
+bin/logstash-plugin install logstash-output-sentry
 ```
 
 When installing from official repository as suggested below, the installation path is `/opt/logstash`.
@@ -78,7 +78,7 @@ sentry {
   'secret' => "596d005d20274474991a2fb8c33040b8"
   'msg' => "Message you want"
   'level_tag' => "fatal"
-  'fields_to_tags' => true
+  'all_fields_to_tags' => true
 }
 ```
 
@@ -92,8 +92,21 @@ sentry {
   'secret' => "596d005d20274474991a2fb8c33040b8"
   'msg' => "Message you want"
   'level_tag' => "fatal"
-  'fields_to_tags' => true
+  'all_fields_to_tags' => true
   'strim_timestamp' => true
+}
+```
+* You can control event collation in Sentry via `fingerprint` option. [See more](https://docs.getsentry.com/hosted/learn/rollups/#custom-grouping).
+```ruby
+output {
+  sentry {
+    'host' => "localhost:9000"
+    'use_ssl' => false
+    'project_id' => "yourprojectid"
+    'key' => "yourkey"
+    'secret' => "yoursecretkey"
+    'fingerprint' => ["%{traceback_id_field_from_event}","static_field"]
+  }
 }
 ```
 
@@ -159,7 +172,7 @@ output {
     document_type  => "%{type}"
   }
   sentry {
-    fields_to_tags => true
+    fields_to_tags => ["user", "type"]
     host           => "%{[@metadata][sentry][host]}"
     key            => "%{[@metadata][sentry][key]}"
     level_tag      => "%{[@metadata][sentry][severity]}"
