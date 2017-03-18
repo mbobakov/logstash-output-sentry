@@ -1,3 +1,5 @@
+## 0.5.0
+ - Support Logstash 5.x versions
 ## 0.4.0
  - Update version of Sentry protocol to '7'
  - Add possibility for custom fields to tags via `fields_to_tags`
