@@ -123,7 +123,7 @@ class LogStash::Outputs::Sentry < LogStash::Outputs::Base
     return unless output?(event)
 
     #use message from event if exists, if not from static
-    message_to_send = event["#{@msg}"] || "#{@msg}"
+    message_to_send = event.get("#{@msg}") || "#{@msg}"
     if strip_timestamp
       #remove timestamp from message if available
       message_matched = message_to_send.match(/\d\d\d\d\-\d\d\-\d\d\s[0-9]{1,2}\:\d\d\:\d\d,\d{1,}\s(.*)/)
@@ -132,7 +132,7 @@ class LogStash::Outputs::Sentry < LogStash::Outputs::Base
 
     packet = {
       :event_id    => SecureRandom.uuid.gsub('-', ''),
-      :timestamp   => event['@timestamp'],
+      :timestamp   => event.get('@timestamp'),
       :message     => message_to_send,
       :level       => event.sprintf(@level_tag),
       :platform    => 'other',
@@ -140,7 +140,7 @@ class LogStash::Outputs::Sentry < LogStash::Outputs::Base
         :version => "0.4.0",
         :name    => "raven_logstash"
       },
-      :server_name => event[@server_name] || event['host'] || "no_server_name",
+      :server_name => event.get(@server_name) || event.get('host') || "no_server_name",
       :extra       => event.to_hash,
     }
     packet[:release] = event.sprintf(@release) unless release.empty?
@@ -152,7 +152,7 @@ class LogStash::Outputs::Sentry < LogStash::Outputs::Base
       packet[:tags] = {}
       fields_to_tags.each do |f|
         if event.to_hash.key?(f)
-          packet[:tags][f] = event[f]
+          packet[:tags][f] = event.get(f)
         end
       end
     end
@@ -165,7 +165,7 @@ class LogStash::Outputs::Sentry < LogStash::Outputs::Base
 
     auth_header = "Sentry sentry_version=7," +
       "sentry_client=raven_logstash/0.4.0," +
-      "sentry_timestamp=#{event['@timestamp'].to_i}," +
+      "sentry_timestamp=#{event.get('@timestamp').to_i}," +
       "sentry_key=#{event.sprintf(@key)}," +
       "sentry_secret=#{event.sprintf(@secret)}"
 
